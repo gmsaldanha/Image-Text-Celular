@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>📸 OCR - Reconhecimento de Produtos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --primary: #6C63FF;
+            --primary-dark: #5a52d5;
+            --success: #2ECC71;
+            --danger: #E74C3C;
+            --gray: #95A5A6;
+            --gray-light: #ECF0F1;
+            --gray-dark: #2C3E50;
+            --white: #FFFFFF;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+            --radius: 16px;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F5F7FA;
+            color: var(--gray-dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+        .btn-success:hover {
+            background: #27AE60;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+        .btn-danger:hover {
+            background: #C0392B;
+        }
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--gray-dark);
+        }
+        .btn-secondary:hover {
+            background: #D5DBDB;
+        }
+        .upload-area {
+            border: 2px dashed var(--gray-light);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 16px;
+        }
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: #f8f7ff;
+        }
+        .upload-area .icone {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        .upload-area p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        .upload-area input[type="file"] {
+            display: none;
+        }
+        #preview-container {
+            display: none;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        #preview-container img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            border: 2px solid var(--gray-light);
+        }
+        #status {
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        #status.carregando {
+            display: block;
+            background: #fff3cd;
+            color: #856404;
+        }
+        #status.sucesso {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+        }
+        #status.erro {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+        }
+        #status.info {
+            display: block;
+            background: #cce5ff;
+            color: #004085;
+        }
+        #resultado {
+            display: none;
+            margin-top: 16px;
+        }
+        .campo {
+            margin-bottom: 12px;
+        }
+        .campo label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+        .campo input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        .campo input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .botoes-acao {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .botoes-acao .btn {
+            flex: 1;
+        }
+        .texto-extraido {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            max-height: 150px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-bottom: 12px;
+            border: 1px solid var(--gray-light);
+            font-family: monospace;
+        }
+        .botoes-camera {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .botoes-camera .btn {
+            flex: 1;
+        }
+        @media (max-width: 480px) {
+            .card {
+                padding: 16px;
+            }
+            .botoes-acao {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1>📸 OCR Offline</h1>
+        <p class="subtitle">Leia texto de produtos com Tesseract.js (totalmente offline)</p>
+
+        <div id="status"></div>
+
+        <!-- 🔥 BOTÕES: CÂMERA E GALERIA -->
+        <div class="botoes-camera">
+            <button class="btn btn-primary" id="btn-camera">
+                📷 Tirar Foto
+            </button>
+            <button class="btn btn-secondary" id="btn-galeria">
+                🖼️ Galeria
+            </button>
+        </div>
+
+        <!-- 🔥 ÁREA DE UPLOAD (OCULTA) -->
+        <div class="upload-area" id="upload-area" style="display:none;">
+            <div class="icone">📸</div>
+            <p><strong>Clique para selecionar uma foto</strong></p>
+            <p style="font-size:12px; color:#999;">ou arraste a imagem aqui</p>
+            <input type="file" id="file-input" accept="image/*">
+        </div>
+
+        <!-- 🔥 PREVIEW DA IMAGEM -->
+        <div id="preview-container">
+            <img id="preview-img">
+        </div>
+
+        <button class="btn btn-primary" id="btn-reconhecer" disabled>
+            🔍 Extrair Texto da Imagem
+        </button>
+
+        <div id="resultado">
+            <div class="card">
+                <h3 style="text-align:center; color:var(--primary); margin-bottom:12px;">📝 Texto Extraído</h3>
+
+                <div class="texto-extraido" id="texto-extraido">
+                    Aguardando reconhecimento...
+                </div>
+
+                <div class="campo">
+                    <label>📦 Nome do Produto</label>
+                    <input type="text" id="produto-nome" placeholder="Digite ou aguarde o reconhecimento">
+                </div>
+
+                <div class="campo">
+                    <label>💰 Preço Unitário (R$)</label>
+                    <input type="number" id="produto-preco" placeholder="0,00" step="0.01">
+                </div>
+
+                <div class="campo">
+                    <label>📦 Quantidade</label>
+                    <input type="number" id="produto-quantidade" placeholder="1" step="0.01" value="1">
+                </div>
+
+                <div class="botoes-acao">
+                    <button class="btn btn-success" id="btn-adicionar">➕ Adicionar Produto</button>
+                    <button class="btn btn-secondary" id="btn-limpar">🗑️ Limpar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="lista-produtos" style="margin-top:16px;">
+            <div class="card">
+                <h3 style="color:var(--gray-dark);">📋 Produtos Reconhecidos</h3>
+                <div id="lista-items">
+                    <p style="color:var(--gray); text-align:center; padding:20px 0;">Nenhum produto reconhecido ainda.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 🔥 TESSERACT.JS (OCR OFFLINE) -->
+<!-- ============================================ -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
+</script>
+
+<script>
+    // ============================================
+    // 🔥 APP PRINCIPAL
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('[APP] 🚀 OCR Offline iniciado!');
+
+        // ============================================
+        // 🔥 ESTADO
+        // ============================================
+        let produtosReconhecidos = [];
+        let imagemAtual = null;
+
+        // ============================================
+        // 🔥 ELEMENTOS DOM
+        // ============================================
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.getElementById('upload-area');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImg = document.getElementById('preview-img');
+        const btnReconhecer = document.getElementById('btn-reconhecer');
+        const btnAdicionar = document.getElementById('btn-adicionar');
+        const btnLimpar = document.getElementById('btn-limpar');
+        const btnCamera = document.getElementById('btn-camera');
+        const btnGaleria = document.getElementById('btn-galeria');
+        const statusEl = document.getElementById('status');
+        const resultadoDiv = document.getElementById('resultado');
+        const textoExtraido = document.getElementById('texto-extraido');
+        const produtoNome = document.getElementById('produto-nome');
+        const produtoPreco = document.getElementById('produto-preco');
+        const produtoQuantidade = document.getElementById('produto-quantidade');
+        const listaItems = document.getElementById('lista-items');
+
+        // ============================================
+        // 🔥 FUNÇÕES AUXILIARES
+        // ============================================
+        function setStatus(texto, tipo = 'info') {
+            statusEl.textContent = texto;
+            statusEl.className = tipo;
+            statusEl.style.display = 'block';
+        }
+
+        function formatarMoeda(valor) {
+            return 'R$ ' + parseFloat(valor || 0).toFixed(2).replace('.', ',');
+        }
+
+        function limparCampos() {
+            produtoNome.value = '';
+            produtoPreco.value = '';
+            produtoQuantidade.value = '1';
+            textoExtraido.textContent = 'Aguardando reconhecimento...';
+            resultadoDiv.style.display = 'none';
+        }
+
+        // ============================================
+        // 🔥 LIMPAR TEXTO EXTRAÍDO
+        // ============================================
+        function limparTextoExtraido(texto) {
+            if (!texto) return '';
+            let limpo = texto
+                .replace(/[^\w\s\.,;:!?@#$%&*()\-+=\/\\|{}\[\]'"<>]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+            const linhas = limpo.split('\n').filter(line => {
+                const trimmed = line.trim();
+                return trimmed.length > 3 && !/^[^a-zA-Z0-9]+$/.test(trimmed);
+            });
+            return linhas.join('\n');
+        }
+
+        // ============================================
+        // 🔥 EXTRAIR NOME E PREÇO DO TEXTO
+        // ============================================
+        function extrairNomePreco(texto) {
+            let nome = '';
+            let preco = null;
+            let quantidade = 1;
+            const linhas = texto.split('\n').filter(line => line.trim().length > 0);
+
+            for (const linha of linhas) {
+                const precoMatch = linha.match(/(?:R?\$?\s*)?(\d+[,.]\d{2})/);
+                if (precoMatch) {
+                    preco = parseFloat(precoMatch[1].replace(',', '.'));
+                    const nomeLinha = linha.replace(precoMatch[0], '').trim();
+                    if (nomeLinha && nomeLinha.length > 2) {
+                        nome = nomeLinha;
+                    }
+                    break;
+                }
+            }
+
+            if (preco === null) {
+                for (const linha of linhas) {
+                    const numMatch = linha.match(/(\d+)/);
+                    if (numMatch) {
+                        const valor = parseInt(numMatch[1]);
+                        if (valor >= 1 && valor <= 999) {
+                            preco = valor;
+                            const nomeLinha = linha.replace(numMatch[0], '').trim();
+                            if (nomeLinha && nomeLinha.length > 2) {
+                                nome = nomeLinha;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            for (const linha of linhas) {
+                const qtdMatch = linha.match(/(\d+)\s*(?:ML|L|KG|G|UN|UNIDADE|PACOTE|CAIXA)/i);
+                if (qtdMatch) {
+                    quantidade = parseFloat(qtdMatch[1]);
+                    const nomeLinha = linha.replace(qtdMatch[0], '').trim();
+                    if (nomeLinha && nomeLinha.length > 2) {
+                        nome = nomeLinha;
+                    }
+                    break;
+                }
+            }
+
+            if (!nome && linhas.length > 0) {
+                nome = linhas[0].trim();
+            }
+
+            nome = nome
+                .replace(/^(preço|valor|r\$|rs|reais|real|quantidade|un|und|unidade|kg|g|ml|l|litro)\s*/i, '')
+                .replace(/\s+(preço|valor|r\$|rs|reais|real|quantidade|un|und|unidade|kg|g|ml|l|litro)$/i, '')
+                .replace(/^[0-9\s]+/, '')
+                .trim();
+
+            if (nome) {
+                nome = nome.charAt(0).toUpperCase() + nome.slice(1);
+            }
+
+            return { nome, preco, quantidade };
+        }
+
+        // ============================================
+        // 🔥 EXTRAIR TEXTO COM TESSERACT
+        // ============================================
+        async function extrairTexto() {
+            if (!imagemAtual) {
+                setStatus('⚠️ Selecione uma imagem primeiro!', 'erro');
+                return;
+            }
+
+            try {
+                setStatus('🔍 Analisando imagem com OCR... (pode demorar alguns segundos)', 'carregando');
+                btnReconhecer.disabled = true;
+
+                const worker = await Tesseract.createWorker();
+                await worker.loadLanguage('por');
+                await worker.initialize('por');
+                await worker.setParameters({
+                    tessedit_pageseg_mode: '6',
+                    tessedit_ocr_engine_mode: '3',
+                });
+
+                const { data: { text } } = await worker.recognize(imagemAtual);
+                await worker.terminate();
+
+                console.log('[OCR] 📝 Texto bruto:', text);
+
+                const textoLimpo = limparTextoExtraido(text);
+                console.log('[OCR] 📝 Texto limpo:', textoLimpo);
+
+                textoExtraido.textContent = textoLimpo || 'Nenhum texto encontrado na imagem.';
+                resultadoDiv.style.display = 'block';
+
+                const { nome, preco, quantidade } = extrairNomePreco(textoLimpo);
+
+                console.log('[OCR] 📦 Nome:', nome);
+                console.log('[OCR] 💰 Preço:', preco);
+                console.log('[OCR] 📦 Quantidade:', quantidade);
+
+                if (nome) {
+                    produtoNome.value = nome;
+                }
+
+                if (preco !== null && preco > 0) {
+                    produtoPreco.value = preco.toFixed(2);
+                }
+
+                if (quantidade > 1) {
+                    produtoQuantidade.value = quantidade;
+                }
+
+                setStatus('✅ Texto extraído com sucesso!', 'sucesso');
+                btnReconhecer.disabled = false;
+
+            } catch (error) {
+                console.error('[OCR] ❌ Erro:', error);
+                setStatus('❌ Erro ao extrair texto: ' + error.message, 'erro');
+                btnReconhecer.disabled = false;
+            }
+        }
+
+        // ============================================
+        // 🔥 ADICIONAR PRODUTO
+        // ============================================
+        function adicionarProduto() {
+            const nome = produtoNome.value.trim();
+            const preco = parseFloat(produtoPreco.value) || 0;
+            const quantidade = parseFloat(produtoQuantidade.value) || 1;
+
+            if (!nome) {
+                setStatus('⚠️ Digite o nome do produto!', 'erro');
+                return;
+            }
+
+            const produto = {
+                id: Date.now(),
+                nome: nome,
+                preco: preco,
+                quantidade: quantidade,
+                total: preco * quantidade,
+                data: new Date().toLocaleString('pt-BR')
+            };
+
+            produtosReconhecidos.push(produto);
+            atualizarLista();
+
+            setStatus(`✅ Produto "${nome}" adicionado!`, 'sucesso');
+            limparCampos();
+
+            imagemAtual = null;
+            previewContainer.style.display = 'none';
+        }
+
+        // ============================================
+        // 🔥 ATUALIZAR LISTA
+        // ============================================
+        function atualizarLista() {
+            if (produtosReconhecidos.length === 0) {
+                listaItems.innerHTML = '<p style="color:var(--gray); text-align:center; padding:20px 0;">Nenhum produto reconhecido ainda.</p>';
+                return;
+            }
+
+            let totalGeral = 0;
+            listaItems.innerHTML = produtosReconhecidos.map((p, index) => {
+                totalGeral += p.total;
+                return `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--gray-light);">
+                        <div>
+                            <strong>${p.nome}</strong>
+                            <div style="font-size:12px; color:var(--gray);">
+                                ${p.quantidade} x ${formatarMoeda(p.preco)} = ${formatarMoeda(p.total)}
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn btn-danger" onclick="removerProduto(${index})" style="padding:4px 10px; font-size:12px; border:none; border-radius:6px; cursor:pointer;">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            listaItems.innerHTML += `
+                <div style="margin-top:12px; padding-top:12px; border-top:2px solid var(--primary); display:flex; justify-content:space-between; font-weight:600;">
+                    <span>💰 TOTAL GERAL</span>
+                    <span style="color:var(--primary); font-size:18px;">${formatarMoeda(totalGeral)}</span>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // 🔥 REMOVER PRODUTO
+        // ============================================
+        window.removerProduto = function(index) {
+            if (!confirm('Remover este produto da lista?')) return;
+            produtosReconhecidos.splice(index, 1);
+            atualizarLista();
+        };
+
+        // ============================================
+        // 🔥 FUNÇÃO PARA CARREGAR IMAGEM
+        // ============================================
+        function carregarImagem(file) {
+            if (!file) return;
+            imagemAtual = file;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                previewImg.src = ev.target.result;
+                previewContainer.style.display = 'block';
+                limparCampos();
+                setStatus('📸 Imagem carregada! Clique em "Extrair Texto".', 'info');
+                btnReconhecer.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ============================================
+        // 🔥 EVENTOS: CÂMERA E GALERIA
+        // ============================================
+        btnCamera.addEventListener('click', function() {
+            // 🔥 ABRE A CÂMERA DIRETAMENTE (CELULAR)
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) carregarImagem(file);
+            };
+            input.click();
+        });
+
+        btnGaleria.addEventListener('click', function() {
+            // 🔥 ABRE A GALERIA DE IMAGENS
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) carregarImagem(file);
+            };
+            input.click();
+        });
+
+        // ============================================
+        // 🔥 EVENTOS EXISTENTES
+        // ============================================
+        btnReconhecer.addEventListener('click', extrairTexto);
+        btnAdicionar.addEventListener('click', adicionarProduto);
+        btnLimpar.addEventListener('click', function() {
+            limparCampos();
+            imagemAtual = null;
+            previewContainer.style.display = 'none';
+            setStatus('🧹 Campos limpos!', 'info');
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && resultadoDiv.style.display === 'block') {
+                adicionarProduto();
+            }
+        });
+
+        console.log('[APP] ✅ Pronto! Selecione uma imagem e clique em "Extrair Texto".');
+    });
+</script>
+
+</body>
+</html>
