@@ -55,3 +55,14 @@ Na primeira execução é necessario acesso a internet para baixar o modelo. Dep
 6. Preenche campos automaticamente
         ↓
 7. Usuário confirma e adiciona
+
+
+
+
+
+💰 Apoie o Projeto
+Se este projeto te ajudou, considere fazer uma doação para apoiar o desenvolvimento contínuo! Sua contribuição ajuda a manter o projeto atualizado com as mudanças da ANTT, corrigir bugs e desenvolver novas funcionalidades.
+
+🇧🇷 QR Code Pix
+<p align="center"> <a href="images/qrcodegmsaldanhaMP.png" target="_blank"> <img src="images/qrcodegmsaldanhaMP.png" alt="QR Code Pix - Doação" width="200"/> </a> </p>
+Chave Pix: gmscomputadores@bol.com.br
