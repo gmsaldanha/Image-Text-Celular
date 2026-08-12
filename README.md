@@ -60,10 +60,22 @@ Na primeira execução é necessario acesso a internet para baixar o modelo. Dep
 
 
 
-💰 Apoie o Projeto
+# 💰 **APOIE O PROJETO**
 
-Se este projeto te ajudou, considere fazer uma doação para apoiar o desenvolvimento contínuo! Sua contribuição ajuda a manter o projeto atualizado com as mudanças da ANTT, corrigir bugs e desenvolver novas funcionalidades.
+> ⭐ **Se este projeto te ajudou, considere fazer uma doação para apoiar o desenvolvimento contínuo!** ⭐
 
-QR Code Pix
-<p align="center"> <a href="images/qrcodegmsaldanhaMP.png" target="_blank"> <img src="images/qrcodegmsaldanhaMP.png" alt="QR Code Pix - Doação" width="200"/> </a> </p>
-Chave Pix: gmscomputadores@bol.com.br
+**Sua contribuição ajuda a manter o projeto atualizado com as mudanças da ANTT, corrigir bugs e desenvolver novas funcionalidades.**
+
+---
+
+## 📱 **QR Code Pix**
+
+<p align="center">
+  <a href="images/qrcodegmsaldanhaMP.png" target="_blank">
+    <img src="images/qrcodegmsaldanhaMP.png" alt="QR Code Pix - Doação" width="200"/>
+  </a>
+</p>
+
+<p align="center">
+  <strong>🔑 Chave Pix:</strong> <code>gmscomputadores@bol.com.br</code>
+</p>
